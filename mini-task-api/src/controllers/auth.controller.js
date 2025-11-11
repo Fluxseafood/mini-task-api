@@ -3,6 +3,9 @@ const { createUser, getUserByEmail, getUserById } = require('../models/user.mode
 const jwtUtil = require('../utils/jwt');
 const { v4: uuidv4 } = require('uuid');
 
+const key = uuidv4();
+console.log(key);
+
 const SALT_ROUNDS = 10;
 
 async function register(req, res, next) {
@@ -29,7 +32,7 @@ async function login(req, res, next) {
         const accessToken = jwtUtil.generateAccessToken(user);
         const refreshToken = jwtUtil.generateRefreshToken(user);
 
-        // You should store refresh tokens server-side for revocation in production (e.g. table)
+
         return res.json({ accessToken, refreshToken });
     } catch (err) { next(err); }
 }
@@ -39,7 +42,7 @@ async function refresh(req, res, next) {
         const { refreshToken } = req.body;
         if (!refreshToken) return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'refreshToken required' } });
         const payload = jwtUtil.verifyRefreshToken(refreshToken);
-        // Optionally check tokenId in DB
+
         const user = await getUserById(payload.userId);
         if (!user) return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Invalid token' } });
         const accessToken = jwtUtil.generateAccessToken(user);
@@ -50,7 +53,6 @@ async function refresh(req, res, next) {
 }
 
 async function logout(req, res, next) {
-    // For demo: client should discard tokens. In production: blacklist refresh token server-side.
     return res.json({ message: 'Logged out' });
 }
 

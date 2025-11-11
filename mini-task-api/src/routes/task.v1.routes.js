@@ -5,6 +5,13 @@ const authenticate = require('../middlewares/authenticate');
 const checkTaskAccess = require('../middlewares/checkTaskAccess');
 const idempotencyMw = require('../middlewares/idempotency');
 
+
+// กำหนด version
+router.use((req, res, next) => {
+  req.version = 'v1';
+  next();
+});
+
 router.post('/', authenticate, idempotencyMw, ctrl.createTask);
 router.get('/', authenticate, ctrl.listTasks);
 router.get('/:id', authenticate, checkTaskAccess('read'), ctrl.getTask);

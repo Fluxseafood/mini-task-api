@@ -1,32 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const taskController = require('../controllers/task.controller');
+const ctrl = require('../controllers/task.controller');
 const authenticate = require('../middlewares/authenticate');
+const checkTaskAccess = require('../middlewares/checkTaskAccess');
+const idempotencyMw = require('../middlewares/idempotency');
 
-// v2: add metadata to responses - we wrap list/get responses
-router.get('/', authenticate, async (req, res, next) => {
-    try {
-        const tasks = await taskController.listTasks(req, res, next);
-        // if listTasks returned via res, it already sent; but for clarity, let's call model directly:
-        // For brevity we just call listTasks but adjust format
-        const page = parseInt(req.query.page || '1', 10);
-        const limit = parseInt(req.query.limit || '20', 10);
-        const items = await require('../models/task.model').listTasks({}, page, limit, req.query.sort);
-        return res.json({
-            items,
-            metadata: { page, limit, returned: items.length, version: 'v2' }
-        });
-    } catch (err) { next(err); }
+// ตั้ง version = v2
+router.use((req, res, next) => {
+  req.version = 'v2';
+  next();
 });
 
-// Mirror other endpoints to v1 but wrapped similarly if desired
-router.post('/', authenticate, require('../middlewares/idempotency'), taskController.createTask);
-router.get('/:id', authenticate, require('../middlewares/checkTaskAccess')('read'), async (req, res, next) => {
-    try {
-        const task = await require('../models/task.model').getTaskById(req.params.id);
-        if (!task) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Task not found' } });
-        return res.json({ ...task, metadata: { version: 'v2', createdAt: task.createdAt, updatedAt: task.updatedAt } });
-    } catch (err) { next(err); }
-});
+router.post('/', authenticate, idempotencyMw, ctrl.createTask);
+router.get('/', authenticate, ctrl.listTasks);
+router.get('/:id', authenticate, checkTaskAccess('read'), ctrl.getTask);
+router.put('/:id', authenticate, checkTaskAccess('write'), ctrl.putTask);
+router.patch('/:id/status', authenticate, checkTaskAccess('write'), ctrl.patchStatus);
+router.delete('/:id', authenticate, checkTaskAccess('write'), ctrl.deleteTask);
 
 module.exports = router;
