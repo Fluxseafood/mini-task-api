@@ -3,10 +3,10 @@ const { getPool } = require('../config/db');
 async function storeIdempotency(key, userId, requestHash, responseBody, expiresAt) {
     const pool = getPool();
     await pool.query(
-        `INSERT INTO idempotency_keys (idempotencyKey, userId, requestHash, responseBody, expiresAt)
+        `INSERT INTO idempotency_keys (key_value, userId, requestHash, responseBody, expiresAt)
          VALUES (?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE responseBody = VALUES(responseBody)`,
-        [key, userId, requestHash, JSON.stringify(responseBody), expiresAt] // stringify
+        [key, userId, requestHash, JSON.stringify(responseBody), expiresAt]
     );
 }
 

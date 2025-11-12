@@ -84,7 +84,10 @@ async function createTask(req, res, next) {
                 }
             });
         }
-
+        
+        if (title === 'trigger500') {
+            throw new Error('Manual internal server error for testing');
+        }
         // Create task
         const task = await taskModel.createTask({
             title, description, priority, ownerId: req.user.userId, assignedTo, isPublic: isPublic ? 1 : 0
