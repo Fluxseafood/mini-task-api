@@ -65,20 +65,28 @@ Mini Task API มีหน้าที่จัดการผู้ใช้ (U
 
 ---
 
+## โคลนโปรเจกต์จาก GitHub
+
+   ```bash
+   git clone https://github.com/Fluxseafood/mini-task-api.git
+   cd mini-task-api
+   ```
+   
+
 ## ขั้นตอนการรันโปรเจกต์ด้วย Docker compose
 
 1. ตรวจสอบว่ามี Docker และ Docker Compose แล้ว
 - Docker Desktop (Windows / macOS)
 
 ตรวจสอบด้วยคำสั่ง:
-
+bash
 docker -v
 docker compose version
 
 ---
 
 2. รันระบบด้วย Docker Compose
-
+bash
 docker compose up -d
 
 เมื่อระบบเริ่มทำงานเสร็จ:
@@ -88,11 +96,11 @@ docker compose up -d
 ---
 
 3. หยุดระบบ
-
+bash
 docker compose down
 
 หากต้องการลบข้อมูลฐานข้อมูลทั้งหมด:
-
+bash
 docker compose down -v
 
 ---
@@ -103,21 +111,49 @@ docker compose ps
 
 ## ขั้นตอนการติดตั้ง (Installation)
 
-1. **โคลนโปรเจกต์จาก GitHub**
+
+   
+
+1. **ติดตั้ง dependencies**
    ```bash
-   git clone https://github.com/Fluxseafood/mini-task-api.git
-   cd mini-task-api
+  npm init -y
+  npm install express mysql2 dotenv bcrypt jsonwebtoken express-rate-limit cors morgan
+  npm install --save-dev nodemon
    ```
 
-2. **ติดตั้ง dependencies**
-   ```bash
-   npm install
+2. **แก้ไขไฟล์ package.json**
+   ```
+  {
+    "name": "mini-task-api",
+    "version": "1.0.0",
+    "description": "Mini Task API - Express + MySQL",
+    "main": "src/server.js",
+    "scripts": {
+      "start": "node src/server.js",
+      "dev": "nodemon src/server.js"
+    },
+    "author": "Your Team",
+    "license": "MIT",
+    "dependencies": {
+      "bcrypt": "^5.1.0",
+      "express": "^4.18.2",
+      "express-rate-limit": "^6.7.0",
+      "helmet": "^7.0.0",
+      "jsonwebtoken": "^9.0.0",
+      "mysql2": "^3.3.2",
+      "uuid": "^9.0.0",
+      "dotenv": "^16.3.1",
+      "joi": "^17.9.2"
+    },
+    "devDependencies": {
+      "nodemon": "^3.0.1"
+    }
+  }
    ```
 
 3. **ตั้งค่าฐานข้อมูล MySQL**
-   - สร้างฐานข้อมูลใหม่ เช่น `mini_task_db`
    - สร้างไฟล์ `.env`
-   - แก้ค่าตามเครื่องของคุณ เช่น
+   - แก้ค่าตามเครื่องของคุณ
      ```
     PORT=3000
     DB_HOST=localhost
@@ -134,7 +170,7 @@ docker compose ps
 
 4. **รันโปรเจกต์**
    ```bash
-   npm start
+    npm run dev
    ```
 
 5. **เปิดใช้งานในเบราว์เซอร์หรือ Postman**
